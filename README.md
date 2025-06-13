@@ -2,6 +2,12 @@
 
 This is a demo of a responsive table built with Next.js, TypeScript, shadcn / Dice UI components and Tailwind CSS.
 
+<img width="1280" alt="image" src="https://github.com/user-attachments/assets/59deff06-3526-416b-949d-ba76f2d1ee81" />
+<img width="267" alt="image" src="https://github.com/user-attachments/assets/656353b9-522f-4948-9f64-4b771742d770" />
+<img width="267" alt="image" src="https://github.com/user-attachments/assets/1a87da3a-13a0-47c5-a9b7-b0be982cea2b" />
+<img width="268" alt="image" src="https://github.com/user-attachments/assets/c721f69c-d725-4a9c-ab22-8e25094e3d8d" />
+
+
 ## Approach
 First we build a simple table using shadcn/ui components and tanstack data table (Headless UI) to handle operations such as filtering, sorting, and pagination. 
 
