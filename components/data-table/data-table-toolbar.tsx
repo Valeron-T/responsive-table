@@ -11,6 +11,7 @@ import { DataTableViewOptions } from "@/components/data-table/data-table-view-op
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import Calendar25 from "../calendar-25";
 
 interface DataTableToolbarProps<TData> extends React.ComponentProps<"div"> {
   table: Table<TData>;
@@ -38,7 +39,7 @@ export function DataTableToolbar<TData>({
       role="toolbar"
       aria-orientation="horizontal"
       className={cn(
-        "flex w-full items-start justify-between gap-2 p-1",
+        "flex w-full items-start justify-between gap-2 p-1 max-md:px-4",
         className,
       )}
       {...props}
@@ -137,6 +138,11 @@ function DataTableToolbarFilter<TData>({
               options={columnMeta.options ?? []}
               multiple={columnMeta.variant === "multiSelect"}
             />
+          );
+
+        case "timeRange":
+          return (
+            <Calendar25 />
           );
 
         default:

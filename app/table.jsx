@@ -1,22 +1,30 @@
 'use client'
-import { Text, CalendarIcon, DollarSign } from "lucide-react";
-// import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { Text, CalendarIcon, Ban, MoreHorizontal, IndianRupee, Radio, Download } from "lucide-react";
 import { useDataTable } from "@/hooks/use-data-table";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { DataTableSortList } from "@/components/data-table/data-table-sort-list";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { useEffect, useMemo } from "react";
-import { validateHeaderName } from "http";
 import useSWR from 'swr'
 import { useSearchParams } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { TickerCard } from "../components/TickerCard";
 
 export default function DataTableDemo() {
   const fetcher = (url) => fetch(url).then((res) => res.json());
 
   // Dummy data and pageCount for demonstration; replace with your actual data source
   const searchParams = useSearchParams()
-
 
   const { data, isLoading, error } = useSWR(() => {
     const url = `/api/trades?${searchParams.toString()}`
@@ -49,8 +57,6 @@ export default function DataTableDemo() {
       { value: "TATAINVEST", label: "TATAINVEST" },
     ]
 
-    // console.log("clientOptions:", clientOptions); // <- see if this logs updated values
-
     return [
       {
         id: "time",
@@ -58,13 +64,14 @@ export default function DataTableDemo() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Time" />
         ),
-        cell: ({ row }) => <div>{row.getValue("time")}</div>,
+        cell: ({ row }) => <div>{new Date(row.getValue("time")).toLocaleString().split(',')[1].trim()}</div>,
         meta: {
           label: "Time",
           placeholder: "Search time...",
-          variant: "text",
+          variant: "timeRange",
           icon: CalendarIcon,
         },
+        enableColumnFilter: true,
       },
       {
         id: "client",
@@ -72,7 +79,7 @@ export default function DataTableDemo() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Client" />
         ),
-        cell: ({ row }) => <div>{row.getValue("client")}</div>,
+        cell: ({ row }) => <div><Badge className="text-xs bg-orange-100 text-orange-700">{row.getValue("client")}</Badge></div>,
         meta: {
           label: "Client",
           placeholder: "Search clients...",
@@ -88,7 +95,16 @@ export default function DataTableDemo() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Ticker" />
         ),
-        cell: ({ row }) => <div>{row.getValue("ticker")}</div>,
+        cell: ({ row }) => {
+          // Show an icon if this ticker is present in the filtered tickers
+          const tickerFilters = table.getState().columnFilters.find(f => f.id === 'ticker');
+          const filteredTickers = Array.isArray(tickerFilters?.value) ? tickerFilters.value : [];
+          const ticker = row.getValue('ticker');
+          const isFiltered = filteredTickers.includes(ticker);
+          return <div className="flex flex-row align-middle gap-1 items-center">
+            {row.getValue('ticker')} {isFiltered && <Radio className="text-blue-500" size={18} />}
+          </div>
+        },
         meta: {
           label: "Ticker",
           placeholder: "Search ticker...",
@@ -97,6 +113,7 @@ export default function DataTableDemo() {
           options: tickerOptions,
         },
         enableColumnFilter: true,
+        enableSorting: false
       },
       {
         id: "side",
@@ -104,14 +121,19 @@ export default function DataTableDemo() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Buy/Sell" />
         ),
-        cell: ({ row }) => <div>{row.getValue("side")}</div>,
+        cell: ({ row }) => <div><Badge className={`${row.getValue('side') === 'Sell' ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"} text-xs`}>{row.getValue('side')}</Badge></div>,
         meta: {
-          label: "Buy/Sell",
+          label: "Side",
           placeholder: "Buy or Sell...",
-          variant: "text",
+          variant: "select",
           icon: Text,
+          options: [
+            { value: "Buy", label: "Buy" },
+            { value: "Sell", label: "Sell" },
+          ],
         },
         enableColumnFilter: true,
+        enableSorting: false
       },
       {
         id: "product",
@@ -119,7 +141,7 @@ export default function DataTableDemo() {
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Product" />
         ),
-        cell: ({ row }) => <div>{row.getValue("product")}</div>,
+        cell: ({ row }) => <div><Badge className="text-xs bg-blue-100 text-blue-700">{row.getValue("product")}</Badge></div>,
         meta: {
           label: "Product",
           placeholder: "CNC/NRML...",
@@ -156,10 +178,31 @@ export default function DataTableDemo() {
           label: "Price",
           placeholder: "Search price...",
           variant: "text",
-          icon: DollarSign,
+          icon: IndianRupee,
         },
-      },
 
+      },
+      {
+        id: "actions",
+        cell: function Cell() {
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Edit</DropdownMenuItem>
+                <DropdownMenuItem variant="destructive">
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      }
     ]
   }, [data]);
 
@@ -171,17 +214,74 @@ export default function DataTableDemo() {
     initialState: {
       sorting: [{ id: "time", desc: true }],
       pagination: { pageSize: 10 },
+      columnPinning: { right: ["actions"] },
     },
     // Unique identifier for rows, can be used for unique row selection
     getRowId: (row) => row.id,
-    enableFilters: true
+    enableFilters: true,
   });
 
+
   return (
-    <DataTable table={table}>
-      <DataTableToolbar table={table}>
-        <DataTableSortList table={table} />
-      </DataTableToolbar>
-    </DataTable>
+    <>
+      <div className="hidden max-md:flex flex-row gap-4 overflow-auto pb-8">
+        <TickerCard ticker="TCS" currentPrice={3825} prevClose={3790} />
+        <TickerCard ticker="INFY" currentPrice={3200} prevClose={3790} />
+        <TickerCard ticker="REDINGTON" currentPrice={3562} prevClose={4000} />
+        <TickerCard ticker="IEX" currentPrice={4202} prevClose={3790} />
+      </div>
+
+      <div className="flex flex-row justify-between w-full max-md:px-4">
+        <SidebarTrigger className="max-md:block hidden" />
+        <h1 className="text-2xl max-md:self-center font-bold">Open Orders</h1>
+        <Button
+          aria-label="Download"
+          variant="default"
+          size="sm"
+          className="border-dashed bg-gray-200 text-black hover:text-white cursor-pointer"
+        >
+          <Download />
+          Download
+        </Button>
+      </div>
+
+      <DataTable table={table}>
+        <DataTableToolbar table={table}>
+          <CustomCancelButton />
+        </DataTableToolbar>
+      </DataTable>
+
+    </>
+  );
+}
+
+
+function CustomCancelButton() {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          aria-label="Reset filters"
+          variant="destructive"
+          size="sm"
+          className="border-dashed cursor-pointer hover:opacity-75"
+        >
+          <Ban />
+          Cancel All
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will cancel all your open orders. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={() => toast.success('All open orders have been cancelled successfully!')}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
