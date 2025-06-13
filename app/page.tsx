@@ -7,6 +7,7 @@ import {
 import { CustomNavigationMenu } from "@/components/navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TickerCard } from "../components/TickerCard";
+import { Suspense } from "react";
 
 export default function Home() {
   return (
@@ -30,7 +31,7 @@ export default function Home() {
 
         <div className="grid grid-rows-[20px_1fr_20px] justify-items-center min-h-screen md:p-8 md:pt-0 font-[family-name:var(--font-geist-sans)]">
           <main className="flex flex-col gap-[16px] row-start-2 !items-center sm:items-start w-full">
-            <DataTableDemo />
+            <Suspense><DataTableDemo /></Suspense>
           </main>
         </div>
       </SidebarInset>

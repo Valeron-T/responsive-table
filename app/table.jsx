@@ -4,7 +4,7 @@ import { useDataTable } from "@/hooks/use-data-table";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import useSWR from 'swr'
 import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,7 @@ export default function DataTableDemo() {
   // Dummy data and pageCount for demonstration; replace with your actual data source
   const searchParams = useSearchParams()
 
-  const { data, isLoading, error } = useSWR(() => {
+  const { data } = useSWR(() => {
     const url = `/api/trades?${searchParams.toString()}`
     return url
   }, fetcher)

@@ -1,10 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronDownIcon, Clock } from "lucide-react"
+import { Check, Clock } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -16,8 +15,6 @@ import {
 import { toast } from "sonner"
 
 export default function Calendar25() {
-  const [open, setOpen] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(undefined)
 
   return (
     <div className="flex flex-col gap-6">
