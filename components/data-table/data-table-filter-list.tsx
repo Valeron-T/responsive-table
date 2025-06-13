@@ -770,7 +770,7 @@ function onFilterInputRender<TData>({
               )}
             >
               <CalendarIcon />
-              <span className="truncate">{displayValue}</span>
+              <span className="truncate">{displayValue as any}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent
